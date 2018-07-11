@@ -1,0 +1,261 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: dse
+objects:
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: dse
+    name: dse
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: dse
+      deploymentconfig: dse
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: dse
+          deploymentconfig: dse
+      spec:
+        containers:
+        - env:
+          - name: DS_LICENSE
+            value: accept
+          - name: DSE_AUTO_CONF_OFF
+            value:
+          image: ' '
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - echo
+              - ok
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 600
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: dse
+          ports:
+          - containerPort: 8182
+            protocol: TCP
+          - containerPort: 8983
+            protocol: TCP
+          - containerPort: 5599
+            protocol: TCP
+          - containerPort: 9999
+            protocol: TCP
+          - containerPort: 8984
+            protocol: TCP
+          - containerPort: 7077
+            protocol: TCP
+          - containerPort: 8609
+            protocol: TCP
+          - containerPort: 9160
+            protocol: TCP
+          - containerPort: 7199
+            protocol: TCP
+          - containerPort: 18080
+            protocol: TCP
+          - containerPort: 7080
+            protocol: TCP
+          - containerPort: 8090
+            protocol: TCP
+          - containerPort: 7001
+            protocol: TCP
+          - containerPort: 7081
+            protocol: TCP
+          - containerPort: 5598
+            protocol: TCP
+          - containerPort: 9042
+            protocol: TCP
+          - containerPort: 4040
+            protocol: TCP
+          - containerPort: 7000
+            protocol: TCP
+          - containerPort: 61621
+            protocol: TCP            
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            successThreshold: 1
+            tcpSocket:
+              port: 9042
+            timeoutSeconds: 1            
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/log/spark
+            name: dse-volume-1
+          - mountPath: /var/lib/cassandra
+            name: dse-volume-3
+          - mountPath: /var/lib/dsefs
+            name: dse-volume-4
+          - mountPath: /var/lib/spark
+            name: dse-volume-5
+          - mountPath: /var/log/cassandra
+            name: dse-volume-6
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: dse-volume-1
+        - emptyDir: {}
+          name: dse-volume-3
+        - emptyDir: {}
+          name: dse-volume-4
+        - emptyDir: {}
+          name: dse-volume-5
+        - emptyDir: {}
+          name: dse-volume-6
+    test: false
+    triggers:
+    - type: ConfigChange    
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - dse
+        from:
+          kind: ImageStreamTag
+          name: ${IMAGE_NAME}:${IMAGE_VERSION}
+          namespace: ${NAMESPACE}
+        lastTriggeredImage: ""
+      type: ImageChange
+    - type: ConfigChange
+  status: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: dse
+    name: dse
+  spec:
+    ports:
+    - name: 4040-tcp
+      port: 4040
+      protocol: TCP
+      targetPort: 4040
+    - name: 5598-tcp
+      port: 5598
+      protocol: TCP
+      targetPort: 5598
+    - name: 5599-tcp
+      port: 5599
+      protocol: TCP
+      targetPort: 5599
+    - name: 7000-tcp
+      port: 7000
+      protocol: TCP
+      targetPort: 7000
+    - name: 7001-tcp
+      port: 7001
+      protocol: TCP
+      targetPort: 7001
+    - name: 7077-tcp
+      port: 7077
+      protocol: TCP
+      targetPort: 7077
+    - name: 7080-tcp
+      port: 7080
+      protocol: TCP
+      targetPort: 7080
+    - name: 7081-tcp
+      port: 7081
+      protocol: TCP
+      targetPort: 7081
+    - name: 7199-tcp
+      port: 7199
+      protocol: TCP
+      targetPort: 7199
+    - name: 8090-tcp
+      port: 8090
+      protocol: TCP
+      targetPort: 8090
+    - name: 8182-tcp
+      port: 8182
+      protocol: TCP
+      targetPort: 8182
+    - name: 8609-tcp
+      port: 8609
+      protocol: TCP
+      targetPort: 8609
+    - name: 8983-tcp
+      port: 8983
+      protocol: TCP
+      targetPort: 8983
+    - name: 8984-tcp
+      port: 8984
+      protocol: TCP
+      targetPort: 8984
+    - name: 9042-tcp
+      port: 9042
+      protocol: TCP
+      targetPort: 9042
+    - name: 9160-tcp
+      port: 9160
+      protocol: TCP
+      targetPort: 9160
+    - name: 9999-tcp
+      port: 9999
+      protocol: TCP
+      targetPort: 9999
+    - name: 18080-tcp
+      port: 18080
+      protocol: TCP
+      targetPort: 18080
+    - name: 61621-tcp
+      port: 61621
+      protocol: TCP
+      targetPort: 61621
+    selector:
+      app: dse
+      deploymentconfig: dse
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+parameters:
+- description: The Namespace where the ImageStream resides.
+  displayName: Namespace
+  name: NAMESPACE
+  value: cassandra
+- description: Version of image to be used (6.0.1 or latest).
+  displayName: Version of Image
+  name: IMAGE_NAME
+  required: true
+  value: "dse"
+- description: Version of image to be used (6.0.1 or latest).
+  displayName: Version of Image
+  name: IMAGE_VERSION
+  required: true
+  value: "latest"
