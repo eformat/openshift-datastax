@@ -48,6 +48,14 @@ Java Test
 
 http://github.com/eformat/fixme
 
+Port forward native connection port
+
+```
+oc port-forward $(oc get pod --no-headers -lapp=dse --template='{{range .items}}{{.metadata.name}}{{end}}') 9042:9042
+```
+
+Run java tests
+
 ```
 $ cd java-cassandra
 $ mvn test
@@ -90,6 +98,7 @@ oc get svc dse -o yaml -o jsonpath='{.spec.clusterIP}'
 
 ##### TODO
 
+- Link to Java test repo
 - DSE Suppports clustering
 - Add Storage PVC's for images
 - OpsCenter Monitoring works, but has error in logs
