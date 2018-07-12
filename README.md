@@ -70,11 +70,10 @@ cqlsh> select * from system_schema.columns;
 ...
 ```
 
-Java Test
+Simple Java Tests
 
 ```
-git clone
-cd
+git clone https://github.com/eformat/java-cassandra
 ```
 
 Port forward native connection port
@@ -83,11 +82,11 @@ Port forward native connection port
 oc port-forward $(oc get pod --no-headers -lapp=dse --template='{{range .items}}{{.metadata.name}}{{end}}') 9042:9042
 ```
 
-Run java tests
+Run
 
 ```
-$ cd java-cassandra
-$ mvn test
+cd java-cassandra
+mvn test
 ```
 
 #### OpsCenter - dse-opscenter
