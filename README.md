@@ -173,7 +173,7 @@ oc adm policy remove-scc-from-user anyuid -z default -n cassandra
 ##### TODO
 
 - OpsCenter Monitoring works, but has error in logs
-- ConfigMap for dse-server (cannot inject ENV VARS here it seems) - note: using custom entrypoint.sh in lieu of this
+- ConfigMap for dse-server - note: using custom entrypoint.sh in lieu of this
 ```
 oc create configmap cassandra --from-file=cassandra.yaml --dry-run -o yaml | oc apply --force -f-
 
