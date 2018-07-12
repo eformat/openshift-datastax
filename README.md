@@ -31,6 +31,32 @@ Create DSE Server
 oc new-app -f dse-template.yml -p NAMESPACE=$(oc project -q)
 ```
 
+#### (optional) Add a PVC to dse-server
+
+Add single dse-server storage
+
+```
+oc create -f - <<EOF
+{
+  "apiVersion": "v1",
+  "kind": "PersistentVolumeClaim",
+  "metadata": {
+    "name": "cassandra-data"
+  },
+  "spec": {
+    "accessModes": [ "ReadWriteOnce" ],
+    "resources": {
+     "requests": {
+        "storage": "1Gi"
+      }
+    }
+  }
+}
+EOF
+
+oc volume dc/dse --add --overwrite -t persistentVolumeClaim --claim-name=cassandra-data --name=dse-volume-3 --mount-path=/var/lib/cassandra/
+```
+
 #### Test
 
 ```
@@ -46,7 +72,10 @@ cqlsh> select * from system_schema.columns;
 
 Java Test
 
-http://github.com/eformat/fixme
+```
+git clone
+cd
+```
 
 Port forward native connection port
 
@@ -99,8 +128,8 @@ oc get svc dse -o yaml -o jsonpath='{.spec.clusterIP}'
 ##### TODO
 
 - Link to Java test repo
-- DSE Suppports clustering
-- Add Storage PVC's for images
+- DSE Suppports clustering - https://www.ibm.com/developerworks/library/ba-multi-data-center-cassandra-cluster-kubernetes-platform/index.html
+- Add Stateful sets for cluster
 - OpsCenter Monitoring works, but has error in logs
 - ConfigMap for dse-server (cannot inject ENV VARS here it seems) - note: using custom entrypoint.sh in lieu of this
 ```
