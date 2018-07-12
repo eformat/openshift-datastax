@@ -37,6 +37,9 @@ CASSANDRA_RACK_CONFIG="${DSE_HOME}/resources/cassandra/conf/cassandra-rackdc.pro
 # so use the hostname's IP by default
 LISTEN_ADDRESS="$IP_ADDRESS"
 
+# if not set, use ip address
+: ${DSE_PORT_9042_TCP_ADDR:="$IP_ADDRESS"}
+
 # BROADCAST_ADDRESS is where we tell other nodes to communicate with us. Again, 'auto' is not a valid value here,
 # so default to the LISTEN_ADDRESS or the hostname's IP address if set to 'auto'
 BROADCAST_ADDRESS="${DSE_PORT_9042_TCP_ADDR}"

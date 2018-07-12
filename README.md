@@ -124,11 +124,54 @@ oc expose svc/dse-studio --port=9091
 oc get svc dse -o yaml -o jsonpath='{.spec.clusterIP}'
 ```
 
+#### Create Clustered dse-server
+
+To create 3 node dse-server cluster
+
+```
+oc new-project cassandra
+oc new-build --binary --name=dse -l app=dse --strategy=docker
+oc start-build dse --from-dir=. --follow
+oc adm policy add-scc-to-user anyuid -z default
+oc apply -f ./cassandra-svc.yaml
+oc apply -f ./cassandra-stateful-set.yaml
+```
+
+You can scale the `StatefulSet` using, but you will need to update `SEEDS` env variable:
+
+```
+oc scale --replicas=5 statefulset/cassandra
+```
+
+We can test it out
+
+```
+oc rsh cassandra-0
+cqlsh
+
+CREATE KEYSPACE IF NOT EXISTS hr_keyspace
+  WITH REPLICATION = {
+   'class' : 'SimpleStrategy',
+   'replication_factor' : 2
+  }
+AND durable_writes = true;
+
+use hr_keyspace;
+CREATE TABLE employee( emp_id int PRIMARY KEY, emp_name text, emp_city text, emp_sal varint, emp_phone varint);
+INSERT INTO employee (emp_id, emp_name, emp_city,emp_sal,emp_phone) VALUES(1,'David', 'San Francisco', 50000, 983210987);
+INSERT INTO employee (emp_id, emp_name, emp_city,emp_sal,emp_phone) VALUES(2,'Robin', 'San Jose', 55000, 9848022339);
+INSERT INTO employee (emp_id, emp_name, emp_city,emp_sal,emp_phone) VALUES(3,'Bob', 'Austin', 45000, 9848022330);
+INSERT INTO employee (emp_id, emp_name, emp_city,emp_sal,emp_phone) VALUES(4, 'Monica','San Jose', 55000, 9458022330);
+
+select * from employee;
+
+-- clean up
+oc delete statefulset,pvc,svc -l app=cassandra
+oc adm policy remove-scc-from-user anyuid -z default -n cassandra
+```
+
 ##### TODO
 
-- Link to Java test repo
-- DSE Suppports clustering - https://www.ibm.com/developerworks/library/ba-multi-data-center-cassandra-cluster-kubernetes-platform/index.html
-- Add Stateful sets for cluster
 - OpsCenter Monitoring works, but has error in logs
 - ConfigMap for dse-server (cannot inject ENV VARS here it seems) - note: using custom entrypoint.sh in lieu of this
 ```

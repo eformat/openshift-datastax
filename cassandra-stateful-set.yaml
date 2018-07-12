@@ -1,0 +1,132 @@
+---
+apiVersion: "apps/v1"
+kind: StatefulSet
+metadata:
+  name: cassandra
+spec:
+  serviceName: cassandra
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cassandra
+      interface: cassandra
+  template:
+    metadata:
+      labels:
+        app: cassandra
+        interface: cassandra
+    spec:
+      containers:
+      - env:
+        - name: DS_LICENSE
+          value: accept
+        - name: DSE_AUTO_CONF_OFF
+          value:
+        - name: SEEDS
+          value: cassandra-0.cassandra.cassandra.svc.cluster.local,cassandra-1.cassandra.cassandra.svc.cluster.local,cassandra-2.cassandra.cassandra.svc.cluster.local
+        image: docker-registry.default.svc:5000/cassandra/dse
+        imagePullPolicy: Always
+        livenessProbe:
+          exec:
+            command:
+            - echo
+            - ok
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 600
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: dse
+        ports:
+        - containerPort: 8182
+          protocol: TCP
+        - containerPort: 8983
+          protocol: TCP
+        - containerPort: 5599
+          protocol: TCP
+        - containerPort: 9999
+          protocol: TCP
+        - containerPort: 8984
+          protocol: TCP
+        - containerPort: 7077
+          protocol: TCP
+        - containerPort: 8609
+          protocol: TCP
+        - containerPort: 9160
+          protocol: TCP
+        - containerPort: 7199
+          protocol: TCP
+        - containerPort: 18080
+          protocol: TCP
+        - containerPort: 7080
+          protocol: TCP
+        - containerPort: 8090
+          protocol: TCP
+        - containerPort: 7001
+          protocol: TCP
+        - containerPort: 7081
+          protocol: TCP
+        - containerPort: 5598
+          protocol: TCP
+        - containerPort: 9042
+          protocol: TCP
+        - containerPort: 4040
+          protocol: TCP
+        - containerPort: 7000
+          protocol: TCP
+        - containerPort: 61621
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/log/spark
+          name: dse-volume-1
+        - mountPath: /var/lib/dsefs
+          name: dse-volume-4
+        - mountPath: /var/lib/spark
+          name: dse-volume-5
+        - mountPath: /var/log/cassandra
+          name: dse-volume-6
+        - name: cassandra-data
+          mountPath: /var/lib/cassandra
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - emptyDir: {}
+        name: dse-volume-1
+      - emptyDir: {}
+        name: dse-volume-4
+      - emptyDir: {}
+        name: dse-volume-5
+      - emptyDir: {}
+        name: dse-volume-6
+      - name: cassandra-data
+        mountPath: /var/lib/cassandra
+  test: false
+  triggers:
+  - type: ConfigChange
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - dse
+      from:
+        kind: ImageStreamTag
+        name: dse:latest
+        namespace: cassandra
+      lastTriggeredImage: ""
+    type: ImageChange
+  - type: ConfigChange
+  volumeClaimTemplates:
+    - metadata:
+        name: cassandra-data
+        annotations:  # comment line if you want to use a StorageClass
+          volume.beta.kubernetes.io/storage-class: ""
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
