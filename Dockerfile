@@ -1,4 +1,4 @@
-FROM datastax/dse-server:6.0.1
+FROM datastax/dse-server:6.0.4
 ENV DS_LICENSE=accept
 COPY entrypoint.sh /
 USER 999
