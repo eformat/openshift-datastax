@@ -54,7 +54,7 @@ oc create -f - <<EOF
 }
 EOF
 
-oc volume dc/dse --add --overwrite -t persistentVolumeClaim --claim-name=cassandra-data --name=dse-volume-3 --mount-path=/var/lib/cassandra/
+oc set volume dc/dse --add --overwrite -t persistentVolumeClaim --claim-name=cassandra-data --name=dse-volume-3 --mount-path=/var/lib/cassandra/
 ```
 
 #### Test
